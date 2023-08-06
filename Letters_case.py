@@ -1,12 +1,14 @@
 import telebot
 from telebot import types
 
-TOKEN = None
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables from .env
+import os
 
-with open("token.txt") as f:
-    TOKEN = f.read().strip()
+# pip install pyTelegramBotAPI
+# pip install python-dotenv
 
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(os.getenv("TOKEN"))
 
 @bot.message_handler(commands=["start"])
 def start(message):
