@@ -10,12 +10,20 @@ import os
 
 bot = telebot.TeleBot(os.getenv("TOKEN"))
 
+big = "Все з великої"
+big_sm = big.lower()
+big_bg = big.upper()
+
+small = "Все з маленької"
+small_sm = small.lower()
+small_bg = small.upper()
+
 @bot.message_handler(commands=["start"])
 def start(message):
     markup = types.ReplyKeyboardMarkup()
-    btn1 = types.KeyboardButton("Все з маленької")
+    btn1 = types.KeyboardButton(small)
     markup.add(btn1)
-    btn2 = types.KeyboardButton("Все з великої")
+    btn2 = types.KeyboardButton(big)
     markup.add(btn2)
     bot.send_message(message.chat.id, f"Привіт, <b>{message.from_user.first_name}</b>\n \
 1) вибери кнопку <b>'Все з великої'</b>, якщо хочеш, щоб <b>усі літери</b> твого тексту відправлялися <b>з великої</b> або\
@@ -26,38 +34,28 @@ def start(message):
 userCase = ""
 
 def on_click(message, content_types=['text']):
-    if message.text == "Все з маленької" or message.text == "Все з великої":
+    if message.text == small or message.text == big:
         global userCase
-        if message.text == "Все з маленької":
-            userCase = "Все з маленької"
-        elif message.text == "Все з великої":
-            userCase = "Все з великої"
+        userCase = message.text
         message = bot.send_message(message.chat.id, "Введіть текст, який треба змінити")
-    if userCase == "Все з маленької":
-        bot.register_next_step_handler(message, reply_to_user_low)
-    elif userCase == "Все з великої":
-        bot.register_next_step_handler(message, reply_to_user_up)
+    if userCase == small:
+        bot.register_next_step_handler(message, reply_to_user)
+    elif userCase == big:
+        bot.register_next_step_handler(message, reply_to_user)
     bot.register_next_step_handler(message, on_click)
 
 
-def reply_to_user_low(message, content_types=['text']):
+def reply_to_user(message, content_types=['text']):
     if message.text is None:
         bot.send_message(message.chat.id, "Ви відправили не текстове повідомлення")
     elif message.text == "/start":
         start(message)
-    else:
-        if message.text != "Все з великої" and message.text != "ВСЕ З ВЕЛИКОЇ" and message.text != "Все з маленької" and message.text != "ВСЕ З МАЛЕНЬКОЇ":
+    elif message.text != big and message.text != big_bg and message.text != big_sm and message.text != small and message.text != small_bg and message.text != small_sm:
+         if userCase == small:
             bot.send_message(message.chat.id, message.text.lower())
-
-
-def reply_to_user_up(message, content_types=['text']):
-    if message.text is None:
-        bot.send_message(message.chat.id, "Ви відправили не текстове повідомлення")
-    elif message.text == "/start":
-        start(message)
-    else:
-        if message.text != "Все з маленької" and message.text != "ВСЕ З МАЛЕНЬКОЇ" and message.text != "Все з великої" and message.text != "ВСЕ З ВЕЛИКОЇ":
+         if userCase == big:
             bot.send_message(message.chat.id, message.text.upper())
+
 
 
 bot.polling(none_stop=True)
